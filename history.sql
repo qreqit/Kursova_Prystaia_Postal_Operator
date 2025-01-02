@@ -1,0 +1,37 @@
+ALTER TABLE dbo.Users ADD
+    ValidFrom DATETIME2 GENERATED ALWAYS AS ROW START HIDDEN
+        CONSTRAINT DF_Users_ValidFrom DEFAULT SYSUTCDATETIME(),
+    ValidTo DATETIME2 GENERATED ALWAYS AS ROW END HIDDEN
+        CONSTRAINT DF_Users_ValidTo DEFAULT CONVERT(DATETIME2, '9999-12-31 23:59:59.9999999'),
+    PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo);
+GO
+
+ALTER TABLE dbo.Users
+    SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.Users_History));
+GO
+
+
+ALTER TABLE dbo.Packages ADD
+    ValidFrom DATETIME2 GENERATED ALWAYS AS ROW START HIDDEN
+        CONSTRAINT DF_Packages_ValidFrom DEFAULT SYSUTCDATETIME(),
+    ValidTo DATETIME2 GENERATED ALWAYS AS ROW END HIDDEN
+        CONSTRAINT DF_Packages_ValidTo DEFAULT CONVERT(DATETIME2, '9999-12-31 23:59:59.9999999'),
+    PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo);
+GO
+
+ALTER TABLE dbo.Packages
+    SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.Packages_History));
+GO
+
+
+SELECT PackageId, SenderId, ReceiverId, CurrentStatusId, ShippingMethodId, WarehouseId, CreatedAt
+FROM dbo.Packages
+    FOR SYSTEM_TIME AS OF '2025-01-01 00:00:00';
+
+SELECT PackageId, SenderId, ReceiverId, CurrentStatusId, ShippingMethodId, WarehouseId, CreatedAt
+FROM dbo.Packages
+         FOR SYSTEM_TIME BETWEEN '2024-01-01 00:00:00' AND '2025-01-01 00:00:00';
+
+SELECT UserId, Username, Email
+FROM dbo.Users
+         FOR SYSTEM_TIME ALL;
